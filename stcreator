@@ -1,0 +1,129 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import getopt, sys
+import os
+import os.path
+import shutil
+
+indextmpl = """
+[Sound Theme]
+Name=name
+Directories=stereo
+
+[stereo]
+OutputProfile=stereo
+"""
+
+soundlist = ['desktop-login.ogg',
+'desktop-logout.ogg',
+'dialog-question.ogg',
+'dialog-error.ogg',
+'dialog-warning.ogg',
+'dialog-information.ogg',
+'system-ready.ogg']
+
+def creat(name, target, *sounds):
+    global indextmpl, soundlist
+
+    os.chdir(os.path.abspath(target))
+
+    try:
+        if os.path.exists(name):
+            print >> sys.stderr, 'The same name directory already exists.'
+            sys.exit(1)
+        os.mkdir(name)
+        os.chdir(name)
+
+        spec = indextmpl.replace("name", name)
+
+        index = open('index.theme', 'w')
+        index.write(spec)
+        index.close()
+
+        os.mkdir('stereo')
+
+        os.chdir('../')
+
+        for sound, sname in zip(sounds, soundlist):
+
+            print sound, sname
+
+            if sound is None:
+                continue
+
+            target = os.path.abspath(sound)
+            dist = os.path.abspath('./'+name+'/stereo/'+sname)
+
+            shutil.copy(target, dist)
+    except OSError, e:
+        print >> sys.stderr, 'It\'s not permitted to write to the target.'
+        sys.exit(1)
+    except IOError, e:
+        print >> sys.stderr, 'An error occurred while processing: ', e.args[1]
+        sys.exit(1)
+
+def usage():
+    print """Usage: stcreator --name NAME --target DISTINATION [OPTION OGG/WAVFILE]...
+--login         Login Sound
+--logout        Logout Sound
+--guestion      Guestion Dialog Sound
+--error         Error Dialog Sound
+--warning       Warning Dialog Sound
+--information   Information Dialog Sound
+--sysready      System Ready Sound(GDM Startup)"""
+
+def main():
+
+    shortopt = "h"
+    longopt = ["help", "name=", "target=", "login=", "logout=", "question=", "error=", "warning=", "information=", "sysready="]
+
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], shortopt, longopts=longopt)
+    except getopt.GetoptError:
+        usage()
+        sys.exit(2)
+
+    name = None
+    target = None
+    login = None
+    logout = None
+    question = None
+    error = None
+    warning = None
+    information = None
+    sysready = None
+
+    for o, a in opts:
+
+        if o in ("-h", "--help"):
+            usage()
+            sys.exit()
+        if o == "--name":
+            name = a
+        if o == "--target":
+            target = a
+        if o == "--login":
+            login = a
+        if o == "--logout":
+            logout = a
+        if o == "--question":
+            question = a
+        if o == "--error":
+            error = a
+        if o == "--warning":
+            warning = a
+        if o == "--information":
+            information = a
+        if o == "--sysready":
+            sysready = a
+
+    if name is None or target is None:
+        usage()
+        sys.exit(2)
+
+    creat(name, target, login, logout, question, error, warning, information, sysready)
+
+if __name__ == "__main__":
+    main()
+
