@@ -23,7 +23,7 @@ soundlist = ['desktop-login',
 'dialog-information',
 'system-ready']
 
-def create(name, target, *sounds):
+def create(name, target, sounds):
     global indextmpl, soundlist
 
     os.chdir(os.path.abspath(target))
@@ -66,18 +66,23 @@ def create(name, target, *sounds):
 
 def usage():
     print """Usage: stcreator --name NAME --target DISTINATION [OPTION OGG/WAVFILE]...
---login         Login Sound
---logout        Logout Sound
---guestion      Guestion Dialog Sound
---error         Error Dialog Sound
---warning       Warning Dialog Sound
---information   Information Dialog Sound
---sysready      System Ready Sound(GDM Startup)"""
+--login         --desktop-login         Login Sound
+--logout        --desktop-logout        Logout Sound
+--error         --dialog-error          Error Dialog Sound
+--warning       --dialog-warning        Warning Dialog Sound
+--information   --dialog-information    Information Dialog Sound
+--guestion      --dialog-question       Guestion Dialog Sound
+--sysready      --system-ready          System Ready Sound(GDM Startup)
+and more more more...
+
+See: http://0pointer.de/public/sound-naming-spec.html
+"""
 
 def main():
 
     shortopt = "h"
-    longopt = ["help", "name=", "target=", "login=", "logout=", "question=", "error=", "warning=", "information=", "sysready="]
+    longopt = ["help", "name=", "target=", "login=", "logout=", "question=", "error=", "warning=", "information=", "sysready=",
+            "desktop-login=", "desktop-logout=", "dialog-question=", "dialog-error=", "dialog-warning=", "dialog-information=", "system-ready="]
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], shortopt, longopts=longopt)
@@ -104,26 +109,26 @@ def main():
             name = a
         if o == "--target":
             target = a
-        if o == "--login":
+        if o in ("--login", "--desktop-login"):
             login = a
-        if o == "--logout":
+        if o in ("--logout", "--desktop-logout"):
             logout = a
-        if o == "--question":
+        if o in ("--question", "--dialog-question"):
             question = a
-        if o == "--error":
+        if o in ("--error", "--dialog-error"):
             error = a
-        if o == "--warning":
+        if o in ("--warning", "--dialog-warning"):
             warning = a
-        if o == "--information":
+        if o in ("--information", "--dialog-information"):
             information = a
-        if o == "--sysready":
+        if o in ("--sysready", "--system-ready"):
             sysready = a
 
     if name is None or target is None:
         usage()
         sys.exit(2)
 
-    create(name, target, login, logout, question, error, warning, information, sysready)
+    create(name, target, [login, logout, question, error, warning, information, sysready])
 
 if __name__ == "__main__":
     main()
