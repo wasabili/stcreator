@@ -75,8 +75,7 @@ def usage():
 --sysready      --system-ready          System Ready Sound(GDM Startup)
 and more more more...
 
-See: http://0pointer.de/public/sound-naming-spec.html
-"""
+See: http://0pointer.de/public/sound-naming-spec.html"""
 
 def main():
 
