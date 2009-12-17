@@ -23,7 +23,7 @@ soundlist = ['desktop-login',
 'dialog-information',
 'system-ready']
 
-def creat(name, target, *sounds):
+def create(name, target, *sounds):
     global indextmpl, soundlist
 
     os.chdir(os.path.abspath(target))
@@ -123,7 +123,7 @@ def main():
         usage()
         sys.exit(2)
 
-    creat(name, target, login, logout, question, error, warning, information, sysready)
+    create(name, target, login, logout, question, error, warning, information, sysready)
 
 if __name__ == "__main__":
     main()
