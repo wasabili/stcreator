@@ -15,16 +15,9 @@ Directories=stereo
 OutputProfile=stereo
 """
 
-soundlist = ['desktop-login',
-'desktop-logout',
-'dialog-question',
-'dialog-error',
-'dialog-warning',
-'dialog-information',
-'system-ready']
 
 def create(name, target, sounds):
-    global indextmpl, soundlist
+    global indextmpl
 
     os.chdir(os.path.abspath(target))
 
@@ -45,18 +38,16 @@ def create(name, target, sounds):
 
         os.chdir('../')
 
-        for sound, sname in zip(sounds, soundlist):
+        for spec, sound in sounds:
 
-            print sound, sname
-
-            if sound is None:
-                continue
+            print sound, 'to', spec
 
             target = os.path.abspath(sound)
             extension = sound.split('.')[-1]
-            dist = os.path.abspath('./'+name+'/stereo/'+sname+'.'+extension)
+            dist = os.path.abspath('./'+name+'/stereo/'+spec+'.'+extension)
 
             shutil.copy(target, dist)
+
     except OSError, e:
         print >> sys.stderr, 'It\'s not permitted to write to the target.'
         sys.exit(1)
@@ -65,15 +56,16 @@ def create(name, target, sounds):
         sys.exit(1)
 
 def usage():
-    print """Usage: stcreator --name NAME --target DISTINATION [OPTION OGG/WAVFILE]...
---login         --desktop-login         Login Sound
---logout        --desktop-logout        Logout Sound
---error         --dialog-error          Error Dialog Sound
---warning       --dialog-warning        Warning Dialog Sound
---information   --dialog-information    Information Dialog Sound
---guestion      --dialog-question       Guestion Dialog Sound
---sysready      --system-ready          System Ready Sound(GDM Startup)
-and more more more...
+    print """Usage: stcreator --name NAME --target DISTINATION [SHORTCUT OGG/WAVFILE]... [SPEC OGG/WAVFILE]...
+
+Shortcuts:
+--login         Login Sound
+--logout        Logout Sound
+--error         Error Dialog Sound
+--warning       Warning Dialog Sound
+--information   Information Dialog Sound
+--guestion      Guestion Dialog Sound
+--sysready      System Ready Sound(GDM Startup)
 
 See: http://0pointer.de/public/sound-naming-spec.html"""
 
@@ -91,16 +83,10 @@ def main():
 
     name = None
     target = None
-    login = None
-    logout = None
-    question = None
-    error = None
-    warning = None
-    information = None
-    sysready = None
+
+    sounds = []
 
     for o, a in opts:
-
         if o in ("-h", "--help"):
             usage()
             sys.exit()
@@ -108,26 +94,39 @@ def main():
             name = a
         if o == "--target":
             target = a
-        if o in ("--login", "--desktop-login"):
-            login = a
-        if o in ("--logout", "--desktop-logout"):
-            logout = a
-        if o in ("--question", "--dialog-question"):
-            question = a
-        if o in ("--error", "--dialog-error"):
-            error = a
-        if o in ("--warning", "--dialog-warning"):
-            warning = a
-        if o in ("--information", "--dialog-information"):
-            information = a
-        if o in ("--sysready", "--system-ready"):
-            sysready = a
+        if o == "--login":
+            sounds.append(('desktop-login', a))
+        if o == "--logout":
+            sounds.append(('desktop-logout', a))
+        if o == "--error":
+            sounds.append(('dialog-error', a))
+        if o == "--warning":
+            sounds.append(('dialog-warning', a))
+        if o == "--information":
+            sounds.append(('dialog-information', a))
+        if o == "--question":
+            sounds.append(('dialog-question', a))
+        if o == "--sysready":
+            sounds.append(('system-ready', a))
 
     if name is None or target is None:
         usage()
         sys.exit(2)
 
-    create(name, target, [login, logout, question, error, warning, information, sysready])
+    if args and len(args) % 2:
+        usage()
+        sys.exit(2)
+
+    while args:
+        sort = args.pop(0)
+        location = args.pop(0)
+
+        if sort in [x[0] for x in sounds]:
+            continue
+
+        sounds.append((sort, location))
+
+    create(name, target, sounds)
 
 if __name__ == "__main__":
     main()
